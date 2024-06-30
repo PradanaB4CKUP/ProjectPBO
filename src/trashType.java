@@ -4,118 +4,101 @@ import java.io.InputStreamReader;
 
 public class trashType {
     int[] berat;
-    int maks;
+    int[] maks;
     String[] jenisSampah, input1, input2;
-    Double total;
-    Double harga;
+    Double[] harga;
+    Double[] total;
     BufferedReader inputData = new BufferedReader(new InputStreamReader(System.in));
 
     public trashType(String[] jenisSampah, int[] berat) throws IOException {
         this.berat = berat;
         this.jenisSampah = jenisSampah;
-
-        // System.out.println("--------------------------------");
-        // System.out.println("Pilih Jenis Sampah");
-        // System.out.println("1. Sampah Rumah Tangga");
-        // System.out.println("2. Sampah Organik");
-        // System.out.println("3. Sampah NonOrganik");
-        // System.out.println("--------------------------------");
-        // System.out.println("Jenis Sampah : "); input1 = inputData.readLine();
-
-        // System.out.println("--------------------------------");
-        // System.out.println("Berat Sampah (Kg) : "); input2 = inputData.readLine();
-        // berat = Integer.parseInt(input2);
-        // System.out.println("--------------------------------");
-        // setJenisSampah(jenisSampah);
-        
-
+        this.harga = new Double[jenisSampah.length];
+        this.total = new Double[jenisSampah.length];
+        this.maks = new int[jenisSampah.length];
+        calculateTotal();
     }
-
-    
 
     public int[] getBerat() {
         return berat;
     }
+
     public void setBerat(int[] berat) {
         this.berat = berat;
     }
+
     public String[] getJenisSampah() {
         return jenisSampah;
     }
-    public Double harga() {
+
+    public Double[] getHarga() {
         return harga;
     }
-    public int maks(){
+
+    public int[] getMaks() {
         return maks;
     }
 
-    public void setJenisSampah(String jenisSampah) throws IOException{
+    public void setJenisSampah(String jenisSampah, int index) throws IOException {
         switch (jenisSampah) {
             case "1":
-                    System.out.println("Sampah Rumah Tangga");
-                    jenisSampah = "Sampah Rumah Tangga";
+                this.jenisSampah[index] = "Sampah Rumah Tangga";
+                this.maks[index] = 5;
                 break;
             case "2":
-                    System.out.println("Sampah Organik");
-                    jenisSampah = "Sampah Organik";
+                this.jenisSampah[index] = "Sampah Organik";
+                this.maks[index] = 3;
                 break;
             case "3":
-                    System.out.println("Sampah NonOrganik");
-                    jenisSampah = "Sampah NonOrganik";
+                this.jenisSampah[index] = "Sampah NonOrganik";
+                this.maks[index] = 5;
                 break;
             default:
-                    System.out.println("Jenis Sampah Tidak Tersedia");
-                    System.out.println("Silahkan Masukkan Jenis Sampah Yang Tersedia");
-                    setJenisSampah(jenisSampah);
+                this.jenisSampah[index] = "Sampah Khusus";
+                this.maks[index] = Integer.MAX_VALUE;  // No limit for special trash
                 break;
         }
     }
 
-    public void getMaksByJenis(String jenisSampah){
+    public void getHarga(String jenisSampah, int index) {
         switch (jenisSampah) {
             case "Sampah Rumah Tangga":
-                maks = 5;
+                harga[index] = 30000.0;
                 break;
             case "Sampah Organik":
-                maks = 3;
+                harga[index] = 10000.0;
                 break;
             case "Sampah NonOrganik":
-                maks = 5;
+                harga[index] = 50000.0;
                 break;
             default:
-                System.out.println("masuk sampah khusus");
+                harga[index] = 15000.0;
                 break;
         }
     }
 
-    public void setHarga(Double harga) {
-        this.harga = harga;
-    }
-
-    public void getHarga(String jenisSampah){
-        switch (jenisSampah) {
-            case "Sampah Rumah Tangga":
-                harga = 30000.0;
-                break;
-            case "Sampah Organik":
-                harga = 10000.0;
-                break;
-            case "Sampah NonOrganik":
-                harga = 50000.0;
-                break;
-            default:
-                System.out.println("masuk sampah khusus");
-                harga = 15000.0;
-                break;
+    public void calculateTotal() {
+        for (int i = 0; i < jenisSampah.length; i++) {
+            getHarga(jenisSampah[i], i);
+            if (berat[i] > maks[i]) {
+                harga[i] = null;  // Special condition
+                total[i] = null;
+            } else {
+                total[i] = berat[i] * harga[i];
+            }
         }
     }
 
-    public void hasil(){
-        System.out.println("--------------------------------");
-        System.out.println("Jenis Sampah : " + jenisSampah);
-        System.out.println("Berat Sampah : " + berat);
-        System.out.println("Harga Sampah : " + harga);
-        System.out.println("Total Harga : " + total);
-        System.out.println("--------------------------------");
+    public String hasil() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < jenisSampah.length; i++) {
+            result.append("--------------------------------\n");
+            result.append("Jenis Sampah: ").append(jenisSampah[i]).append("\n");
+            result.append("Berat Sampah: ").append(berat[i]).append(" Kg\n");
+            result.append("Harga Sampah: ").append(harga[i] != null ? harga[i] : "Masuk Sampah Khusus").append("\n");
+            result.append("Total Harga: ").append(total[i] != null ? total[i] : "Null").append("\n");
+            result.append("--------------------------------\n");
+        }
+        return result.toString();
     }
 }

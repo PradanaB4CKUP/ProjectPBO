@@ -1,71 +1,96 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Date;
 
+public class App extends JFrame {
 
-public class App {
-    public static void main(String[] args) throws Exception {
-        System.out.println("Project Kelompok PBO");
-        
+    private JTextField namaPetugasField;
+    private JTextField jumlahUserField;
+    private JTextArea outputArea;
 
-        String namaPetugas;
-        Date date = new Date();
-        String tanggal = date.toString();
-        
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public App() {
+        setTitle("Project Kelompok PBO");
+        setSize(500, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
 
-        System.out.print("Masukkan nama petugas : ");
-        namaPetugas = br.readLine();
-        
-        System.out.print("Masukkan jumlah user : ");
-        int jumlah = Integer.parseInt(br.readLine());
-        String[] nama = new String[jumlah];
-        String[] alamat = new String[jumlah];
-        String[] noHp = new String[jumlah];
+        JLabel namaPetugasLabel = new JLabel("Masukkan nama petugas: ");
+        namaPetugasField = new JTextField(20);
+        JLabel jumlahUserLabel = new JLabel("Masukkan jumlah user: ");
+        jumlahUserField = new JTextField(20);
+        JButton submitButton = new JButton("Submit");
 
-        for (int i = 0; i < jumlah; i++) {
-            System.out.print("Masukkan nama : ");
-            nama[i] = br.readLine();
-            System.out.print("Masukkan alamat : ");
-            alamat[i] = br.readLine();
-            System.out.print("Masukkan nomor hp : ");
-            noHp[i] = br.readLine();
+        outputArea = new JTextArea(20, 40);
+        outputArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(outputArea);
 
-            System.out.println("==========================");
-            System.out.println("======= input user =======");
-            System.out.println("Masukkan jumlah jenis sampah yang ingin dibuang :");
-            int jumlahSampah = Integer.parseInt(br.readLine());
-            String[] input1 = new String[jumlahSampah];
-            int[] input2 = new int[jumlahSampah];
+        add(namaPetugasLabel);
+        add(namaPetugasField);
+        add(jumlahUserLabel);
+        add(jumlahUserField);
+        add(submitButton);
+        add(scrollPane);
 
-            for (int j = 0; j < jumlahSampah; j++) {
-                System.out.println("--------------------------------");
-                System.out.println("Pilih Jenis Sampah");
-                System.out.println("1. Sampah Rumah Tangga");
-                System.out.println("2. Sampah Organik");
-                System.out.println("3. Sampah NonOrganik");
-                System.out.println("--------------------------------");
-                System.out.println("Jenis Sampah : "); input1[j] = br.readLine();
-                System.out.println("Berat Sampah (Kg) : "); input2[j] = Integer.parseInt(br.readLine());
-                System.out.println("--------------------------------");
+        submitButton.addActionListener(new SubmitButtonListener());
 
+        setVisible(true);
+    }
+
+    private class SubmitButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                String namaPetugas = namaPetugasField.getText();
+                int jumlahUser = Integer.parseInt(jumlahUserField.getText());
+
+                String[] nama = new String[jumlahUser];
+                String[] alamat = new String[jumlahUser];
+                String[] noHp = new String[jumlahUser];
+
+                for (int i = 0; i < jumlahUser; i++) {
+                    nama[i] = JOptionPane.showInputDialog("Masukkan nama user " + (i + 1) + ": ");
+                    alamat[i] = JOptionPane.showInputDialog("Masukkan alamat user " + (i + 1) + ": ");
+                    noHp[i] = JOptionPane.showInputDialog("Masukkan nomor hp user " + (i + 1) + ": ");
+
+                    int jumlahSampah = Integer.parseInt(JOptionPane.showInputDialog("Masukkan jumlah jenis sampah yang ingin dibuang untuk user " + (i + 1) + ": "));
+                    String[] input1 = new String[jumlahSampah];
+                    int[] input2 = new int[jumlahSampah];
+
+                    for (int j = 0; j < jumlahSampah; j++) {
+                        String jenisSampah = JOptionPane.showInputDialog("Pilih jenis sampah (1. Sampah Rumah Tangga, 2. Sampah Organik, 3. Sampah NonOrganik) untuk user " + (i + 1) + ": ");
+                        int beratSampah = Integer.parseInt(JOptionPane.showInputDialog("Masukkan berat sampah (Kg) untuk jenis " + jenisSampah + " user " + (i + 1) + ": "));
+                        input1[j] = jenisSampah;
+                        input2[j] = beratSampah;
+                    }
+
+                    trashType objType = new trashType(input1, input2);
+                    for (int j = 0; j < jumlahSampah; j++) {
+                        objType.setJenisSampah(input1[j], j);
+                    }
+                    objType.calculateTotal();
+                    
+                    outputArea.append("Nama: " + nama[i] + "\n");
+                    outputArea.append("Alamat: " + alamat[i] + "\n");
+                    outputArea.append("Nomor HP: " + noHp[i] + "\n");
+                    outputArea.append(objType.hasil());
+                }
+
+                Date date = new Date();
+                String tanggal = date.toString();
+                outputArea.append("Hormat Kami\n");
+                outputArea.append("Tanggal: " + tanggal + "\n");
+                outputArea.append("Nama Petugas: " + namaPetugas + "\n");
+                outputArea.append("==========================\n");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(App.this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            trashType objType = new trashType(input1, input2);
-            System.out.println("Jenis Sampah : " + objType.getJenisSampah()[i]);
         }
+    }
 
-        user user = new user(nama, alamat, noHp);
-        for (int i = 0; i < jumlah; i++) {
-            System.out.println("Nama : " + user.getNama()[i]);
-            System.out.println("Alamat : " + user.getAlamat()[i]);
-            System.out.println("Nomor HP : " + user.getNoHp()[i]);
-        }
-        
-        
-        System.out.print("Hormat Kami");
-        System.out.println("Tanggal : " + tanggal);
-        System.out.println("Nama Petugas : " + namaPetugas);
-        System.out.println("==========================");
+    public static void main(String[] args) {
+        new App();
     }
 }
